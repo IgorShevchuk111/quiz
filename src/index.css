@@ -94,6 +94,7 @@ h4 {
   margin-bottom: 14px;
   font-weight: bold;
   font-size: 18px;
+  width: 300px;
 }
 
 .start select {
@@ -102,6 +103,15 @@ h4 {
   width: 100%;
   border-radius: 5px;
   border: 1px solid #ccc;
+}
+
+.start input {
+  width: 300px;
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-bottom: 14px;
 }
 
 .progress {
@@ -128,6 +138,11 @@ progress {
 ::-webkit-progress-value {
   background-color: var(--color-theme);
   border-radius: 100px;
+}
+
+.container-btn {
+  display: flex;
+  justify-content: space-around;
 }
 
 .btn {

@@ -1,6 +1,13 @@
 import React from "react";
+import Button from "./Button";
 
-function FinishScreen({ points, maxPossiblePoints, highscore, dispatch }) {
+function FinishScreen({
+  points,
+  maxPossiblePoints,
+  highscore,
+  dispatch,
+  name,
+}) {
   const percentage = (points / maxPossiblePoints) * 100;
 
   let emoji;
@@ -13,16 +20,19 @@ function FinishScreen({ points, maxPossiblePoints, highscore, dispatch }) {
   return (
     <>
       <p className="result">
-        <span>{emoji}</span> You scored <strong>{points}</strong> out of{" "}
-        {maxPossiblePoints} ({Math.ceil(percentage)} %)
+        <span>{emoji}</span>
+        {name} you scored <strong>{points}</strong> out of {maxPossiblePoints} (
+        {Math.ceil(percentage)} %)
       </p>
       <p className="highscore">(Highscore: {highscore} points)</p>
-      <button
-        onClick={() => dispatch({ type: "restart" })}
-        className="btn btn-ui"
-      >
-        Restart quiz
-      </button>
+      <div className="container-btn">
+        <Button dispatch={dispatch} dispatchType="reviewAnswers">
+          Review answers
+        </Button>
+        <Button dispatch={dispatch} dispatchType="restart">
+          Restart quiz
+        </Button>
+      </div>
     </>
   );
 }

@@ -6,11 +6,12 @@ import Loader from "./Loader.js";
 import Error from "./Error.js";
 import StartScreen from "./StartScreen.js";
 import Question from "./Question.js";
-import NextButton from "./NextButton.js";
+import NextButton from "./Button.js";
 import Progress from "./Progress.js";
 import FinishScreen from "./FinishScreen.js";
 import Timer from "./Timer.js";
 import Footer from "./Footer.js";
+import Button from "./Button.js";
 
 const SECS_PER_QUESTION = 30;
 
@@ -19,13 +20,14 @@ const initialState = {
   filteredQuestions: [],
   status: "loading",
   index: 0,
-  answer: null,
+  answer: [],
   points: 0,
   highscore: 0,
   secondsRemaining: null,
   numQuestions: null,
   selectedNumQuestions: null,
   difficulty: "all",
+  name: "",
 };
 
 function reducer(state, action) {
@@ -43,6 +45,11 @@ function reducer(state, action) {
       return {
         ...state,
         highscore: action.payload,
+      };
+    case "name":
+      return {
+        ...state,
+        name: action.payload,
       };
     case "start":
       return {
@@ -80,7 +87,11 @@ function reducer(state, action) {
         filteredQuestions: state.filteredQuestions.slice(0, +action.payload),
       };
     case "nextQuestion":
-      return { ...state, index: state.index + 1, answer: null };
+      return { ...state, index: state.index + 1 };
+    case "nextAnswers":
+      return { ...state, index: state.index + 1 };
+    case "prevAnswers":
+      return { ...state, index: state.index - 1 };
     case "tick":
       return {
         ...state,
@@ -93,14 +104,17 @@ function reducer(state, action) {
       return { ...state, status: "finished", highscore: highscore };
     case "newAnswer":
       const question = state.filteredQuestions[state.index];
+
       return {
         ...state,
-        answer: action.payload,
+        answer: [...state.answer, action.payload],
         points:
           action.payload === question.correctOption
             ? state.points + question.points
             : state.points,
       };
+    case "reviewAnswers":
+      return { ...state, status: "reviewAnswers", index: 0 };
     case "restart":
       return {
         ...initialState,
@@ -111,10 +125,8 @@ function reducer(state, action) {
         highscore: state.highscore,
         status: "ready",
       };
-
     case "dataFailed":
       return { ...state, status: "error" };
-
     default:
       throw new Error("Action unknown");
   }
@@ -133,9 +145,16 @@ function App() {
       difficulty,
       filteredQuestions,
       selectedNumQuestions,
+      name,
     },
     dispatch,
   ] = useReducer(reducer, initialState);
+
+  const canShowNextButton =
+    index < selectedNumQuestions - 1 && answer[index] !== undefined;
+
+  const canShowFinishButton =
+    index === selectedNumQuestions - 1 && answer[index] !== undefined;
 
   const maxPossiblePoints = filteredQuestions.reduce(
     (prev, cur) => prev + cur.points,
@@ -209,15 +228,20 @@ function App() {
               question={filteredQuestions[index]}
               dispatch={dispatch}
               answer={answer}
+              index={index}
             />
             <Footer>
               <Timer secondsRemaining={secondsRemaining} dispatch={dispatch} />
-              <NextButton
-                dispatch={dispatch}
-                answer={answer}
-                index={index}
-                numQuestions={selectedNumQuestions}
-              />
+              {canShowNextButton && (
+                <NextButton dispatchType="nextQuestion" dispatch={dispatch}>
+                  Next
+                </NextButton>
+              )}
+              {canShowFinishButton && (
+                <NextButton dispatchType="finish" dispatch={dispatch}>
+                  Finish
+                </NextButton>
+              )}
             </Footer>
           </>
         )}
@@ -227,7 +251,44 @@ function App() {
             maxPossiblePoints={maxPossiblePoints}
             highscore={highscore}
             dispatch={dispatch}
+            name={name}
           />
+        )}
+        {status === "reviewAnswers" && (
+          <>
+            <Progress
+              points={points}
+              selectedNumQuestions={selectedNumQuestions}
+              index={index}
+              maxPossiblePoints={maxPossiblePoints}
+              answer={answer}
+            />
+            <Question
+              question={filteredQuestions[index]}
+              dispatch={dispatch}
+              answer={answer}
+              index={index}
+            />
+            <div className="container-btn">
+              <Button
+                dispatch={dispatch}
+                dispatchType="prevAnswers"
+                prevDisabled={index === 0}
+              >
+                Prev
+              </Button>
+              <Button dispatch={dispatch} dispatchType="finish">
+                Back
+              </Button>
+              <Button
+                dispatch={dispatch}
+                dispatchType="nextAnswers"
+                nextDisabled={filteredQuestions.length === index + 1}
+              >
+                Next
+              </Button>
+            </div>
+          </>
         )}
       </Main>
     </div>
