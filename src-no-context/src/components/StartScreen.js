@@ -1,10 +1,11 @@
 import React from "react";
-import { useQuiz } from "./contexts/QuizContext";
 
-function StartScreen() {
-  const { numQuestions, selectedNumQuestions, dispatch, difficulty } =
-    useQuiz();
-
+function StartScreen({
+  numQuestions,
+  selectedNumQuestions,
+  dispatch,
+  difficulty,
+}) {
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }

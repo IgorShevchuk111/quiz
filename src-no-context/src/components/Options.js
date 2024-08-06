@@ -1,8 +1,4 @@
-import { useQuiz } from "./contexts/QuizContext";
-
-function Options({ question }) {
-  const { dispatch, answer, index } = useQuiz();
-
+function Options({ question, dispatch, answer, index }) {
   const isAnswered = answer && answer[index] !== undefined;
 
   const handleOptionClick = (optionIndex) => {
